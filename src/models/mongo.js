@@ -18,8 +18,16 @@ class Model {
    */
   get(_id) {
     let queryObject = _id ? {_id} : {};
-    return this.schema.find(queryObject);
+    return this.schema.find(queryObject)
+      .then( records => {
+        records.forEach((record) => {
+          Q.publish('database', 'read', {action:'read', collection:this.schema.modelName, _id: record.id});
+        });
+        return records;
+      });
   }
+
+  // record.body.results.length
 
   /**
    * Create a new record
@@ -28,7 +36,11 @@ class Model {
    */
   post(record) {
     let newRecord = new this.schema(record);
-    return newRecord.save();
+    return newRecord.save()
+      .then( savedRecord => {
+        Q.publish('database', 'create', {action:'create', collection:this.schema.modelName, _id: newRecord.id});
+        return savedRecord;
+      });
   }
 
   /**
@@ -38,7 +50,11 @@ class Model {
    * @returns {*}
    */
   put(_id, record) {
-    return this.schema.findByIdAndUpdate(_id, record, {new:true});
+    return this.schema.findByIdAndUpdate(_id, record, {new:true})
+      .then ( updatedRecord => {
+        Q.publish('database', 'update', {action:'update', collection:this.schema.modelName, _id: updatedRecord.id});
+        return updatedRecord;
+      });
   }
 
   /**
@@ -47,7 +63,11 @@ class Model {
    * @returns {*}
    */
   delete(_id) {
-    return this.schema.findByIdAndDelete(_id);
+    return this.schema.findByIdAndDelete(_id)
+      .then( deletedRecord => {
+        Q.publish('database', 'delete', {action:'delete', collection:this.schema.modelName, _id: deletedRecord.id});
+        return deletedRecord;
+      });
   }
 
 }
