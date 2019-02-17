@@ -1,7 +1,7 @@
 'use strict';
 
 const io = require('socket.io-client');
-const SERVER = process.env.Q_SERVER || 'http://localhost:3333';
+const SERVER = process.env.Q_SERVER;
 
 class Publisher {
 

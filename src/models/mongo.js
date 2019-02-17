@@ -21,7 +21,7 @@ class Model {
     return this.schema.find(queryObject)
       .then( records => {
         records.forEach((record) => {
-          Q.publish('database', 'read', {action:'read', collection:this.schema.modelName, _id: record.id});
+          Q.publish('database', 'read', {action:'read', collection:this.schema.modelName, _id: record.id, name: record.name});
         });
         return records;
       });
@@ -38,7 +38,7 @@ class Model {
     let newRecord = new this.schema(record);
     return newRecord.save()
       .then( savedRecord => {
-        Q.publish('database', 'create', {action:'create', collection:this.schema.modelName, _id: newRecord.id});
+        Q.publish('database', 'create', {action:'create', collection:this.schema.modelName, _id: newRecord.id, name: newRecord.name});
         return savedRecord;
       });
   }
@@ -52,7 +52,7 @@ class Model {
   put(_id, record) {
     return this.schema.findByIdAndUpdate(_id, record, {new:true})
       .then ( updatedRecord => {
-        Q.publish('database', 'update', {action:'update', collection:this.schema.modelName, _id: updatedRecord.id});
+        Q.publish('database', 'update', {action:'update', collection:this.schema.modelName, _id: updatedRecord.id, name: updatedRecord.name});
         return updatedRecord;
       });
   }
@@ -65,7 +65,7 @@ class Model {
   delete(_id) {
     return this.schema.findByIdAndDelete(_id)
       .then( deletedRecord => {
-        Q.publish('database', 'delete', {action:'delete', collection:this.schema.modelName, _id: deletedRecord.id});
+        Q.publish('database', 'delete', {action:'delete', collection:this.schema.modelName, _id: deletedRecord.id, name: deletedRecord.name});
         return deletedRecord;
       });
   }
